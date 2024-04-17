@@ -5,7 +5,7 @@ import Image from "next/image";
 import npmLogo from "../../public/images/npm.svg";
 import type { SearchResult } from "./api/search";
 import { firaMono } from "../theme";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const Home = () => {
   ///
@@ -17,11 +17,21 @@ const Home = () => {
   const [dropdownResults, setDropdownResults] = useState<SearchResult[]>([]);
 
   ///
+  /// Table state
+  ///
+
+  const [fetchingTableResults, setFetchingTableResults] =
+    useState<boolean>(true);
+  const [tableResults, setTableResults] = useState<SearchResult[]>([]);
+
+  ///
   /// Navigation
   ///
 
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchParam = searchParams?.get("search");
 
   ///
   /// Fetch data
@@ -39,6 +49,40 @@ const Home = () => {
       }
     }
   };
+
+  ///
+  /// Initialize component
+  ///
+
+  // Use search query in url to set initial state
+  // for simple state management and to support shareable urls
+  useEffect(() => {
+    async function fetchTableResults() {
+      setFetchingTableResults(true);
+      setSearchQuery("");
+      const results = await fetchPackages(searchParam || "");
+      setTableResults(results || []);
+      setFetchingTableResults(false);
+    }
+
+    // Only attempt to fetch data once url param is available
+    if (router.isReady) {
+      fetchTableResults();
+    }
+  }, [searchParam, router]);
+
+  // Build Autocomplete options
+  const getAutocompleteOptions = dropdownResults?.map((result) => ({
+    label: result.package.name,
+  }));
+
+  // Conditional variables
+  const noDropdownResults =
+    !fetchingDropdownResults && searchQuery && !dropdownResults.length;
+
+  ///
+  /// Watch for events
+  ///
 
   // Check if the user input changed on keypress
   const onKeypress = (e: ChangeEvent<HTMLInputElement>) => {
@@ -73,12 +117,9 @@ const Home = () => {
     router.push(`${pathname}?search=${searchQuery}`);
   };
 
-  const getAutocompleteOptions = dropdownResults?.map((result) => ({
-    label: result.package.name,
-  }));
-
-  const noDropdownResults =
-    !fetchingDropdownResults && searchQuery && !dropdownResults.length;
+  ///
+  /// Render component
+  ///
 
   return (
     <div className="h-screen flex flex-col">
