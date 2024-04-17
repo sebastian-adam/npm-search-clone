@@ -1,4 +1,5 @@
 import { useState, useEffect, ChangeEvent } from "react";
+import { useRouter } from "next/router";
 import { Autocomplete, Button, TextField } from "@mui/material";
 import Image from "next/image";
 import npmLogo from "../../public/images/npm.svg";
@@ -6,10 +7,23 @@ import type { SearchResult } from "./api/search";
 import { firaMono } from "../theme";
 
 const Home = () => {
+  ///
+  /// Autocomplete state
+  ///
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [fetchingDropdownResults, setFetchingDropdownResults] =
     useState<boolean>(true);
   const [dropdownResults, setDropdownResults] = useState<SearchResult[]>([]);
+
+  ///
+  /// Navigation
+  ///
+
+  const router = useRouter();
+
+  ///
+  /// Fetch data
+  ///
 
   const fetchPackages = async (query: string) => {
     if (query) {
@@ -45,6 +59,13 @@ const Home = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
+  // Upon clicking a list item, redirect to dedicated page
+  // Note: packageNames that contain `/` break NextJs routing magic
+  // TODO: Find a better unique id for package routes
+  const onClickListItem = (packageName: string) => {
+    router.push(`/packages/${packageName.replace("/", "")}`);
+  };
+
   const getAutocompleteOptions = dropdownResults?.map((result) => ({
     label: result.package.name,
   }));
@@ -65,6 +86,7 @@ const Home = () => {
             noOptionsText={noDropdownResults ? "No results found" : "..."}
             forcePopupIcon={false}
             options={getAutocompleteOptions}
+            onChange={(_, value) => value && onClickListItem(value.label)}
             renderInput={(params) => (
               <TextField
                 {...params}
