@@ -5,6 +5,8 @@ import Image from "next/image";
 import npmLogo from "../../public/images/npm.svg";
 import type { SearchResult } from "./api/search";
 import { firaMono } from "../theme";
+import Loading from "@/components/Loading";
+import ListItem from "@/components/ListItem";
 import { usePathname, useSearchParams } from "next/navigation";
 
 const Home = () => {
@@ -161,6 +163,17 @@ const Home = () => {
           </Button>
         </div>
       </div>
+      {(fetchingTableResults && <Loading />) || (
+        <ul className="flex flex-col flex-1 w-screen px-8">
+          {tableResults.map((result) => (
+            <ListItem
+              key={result.package.name}
+              item={result.package}
+              onClick={() => onClickListItem(result.package.name)}
+            ></ListItem>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
