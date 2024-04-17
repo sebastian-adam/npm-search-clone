@@ -1,7 +1,7 @@
 "use client";
 // Use fonts used on npm
 import { Poppins, Fira_Mono } from "next/font/google";
-import { createTheme } from "@mui/material/styles";
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600"],
@@ -21,4 +21,4 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+export default responsiveFontSizes(theme);

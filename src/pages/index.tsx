@@ -5,6 +5,7 @@ import Image from "next/image";
 import npmLogo from "../../public/images/npm.svg";
 import type { SearchResult } from "./api/search";
 import { firaMono } from "../theme";
+import Blankslate from "@/components/Blankslate";
 import Loading from "@/components/Loading";
 import ListItem from "@/components/ListItem";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -13,6 +14,7 @@ const Home = () => {
   ///
   /// Autocomplete state
   ///
+
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [fetchingDropdownResults, setFetchingDropdownResults] =
     useState<boolean>(true);
@@ -163,17 +165,18 @@ const Home = () => {
           </Button>
         </div>
       </div>
-      {(fetchingTableResults && <Loading />) || (
-        <ul className="flex flex-col flex-1 w-screen px-8">
-          {tableResults.map((result) => (
-            <ListItem
-              key={result.package.name}
-              item={result.package}
-              onClick={() => onClickListItem(result.package.name)}
-            ></ListItem>
-          ))}
-        </ul>
-      )}
+      {(fetchingTableResults && <Loading />) ||
+        (!fetchingTableResults && !tableResults.length && <Blankslate />) || (
+          <ul className="flex flex-col flex-1 w-screen px-8">
+            {tableResults.map((result) => (
+              <ListItem
+                key={result.package.name}
+                item={result.package}
+                onClick={() => onClickListItem(result.package.name)}
+              ></ListItem>
+            ))}
+          </ul>
+        )}
     </div>
   );
 };
