@@ -5,6 +5,7 @@ import Image from "next/image";
 import npmLogo from "../../public/images/npm.svg";
 import type { SearchResult } from "./api/search";
 import { firaMono } from "../theme";
+import { usePathname } from "next/navigation";
 
 const Home = () => {
   ///
@@ -20,6 +21,7 @@ const Home = () => {
   ///
 
   const router = useRouter();
+  const pathname = usePathname();
 
   ///
   /// Fetch data
@@ -66,6 +68,11 @@ const Home = () => {
     router.push(`/packages/${packageName.replace("/", "")}`);
   };
 
+  // Upon submitting a search, update search query in url
+  const onSubmitSearch = () => {
+    router.push(`${pathname}?search=${searchQuery}`);
+  };
+
   const getAutocompleteOptions = dropdownResults?.map((result) => ({
     label: result.package.name,
   }));
@@ -101,6 +108,16 @@ const Home = () => {
               />
             )}
           />
+          <Button
+            variant="contained"
+            component="button"
+            disabled={
+              fetchingDropdownResults || !!noDropdownResults || !searchQuery
+            }
+            onClick={onSubmitSearch}
+          >
+            Search
+          </Button>
         </div>
       </div>
     </div>
