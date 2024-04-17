@@ -7,6 +7,8 @@ import { firaMono } from "../theme";
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [fetchingDropdownResults, setFetchingDropdownResults] =
+    useState<boolean>(true);
   const [dropdownResults, setDropdownResults] = useState<SearchResult[]>([]);
 
   const fetchPackages = async (query: string) => {
@@ -32,10 +34,12 @@ const Home = () => {
 
   // When the user input changes, refresh the dropdown data
   useEffect(() => {
+    setFetchingDropdownResults(true);
     // Debounce search to improve UX
     const timeoutId = setTimeout(async () => {
       const results = await fetchPackages(searchQuery);
       setDropdownResults(results || []);
+      setFetchingDropdownResults(false);
     }, 300);
 
     return () => clearTimeout(timeoutId);
@@ -44,6 +48,9 @@ const Home = () => {
   const getAutocompleteOptions = dropdownResults?.map((result) => ({
     label: result.package.name,
   }));
+
+  const noDropdownResults =
+    !fetchingDropdownResults && searchQuery && !dropdownResults.length;
 
   return (
     <div className="h-screen flex flex-col">
@@ -55,7 +62,7 @@ const Home = () => {
             className="flex-1"
             disablePortal
             open={!!searchQuery}
-            noOptionsText={"..."}
+            noOptionsText={noDropdownResults ? "No results found" : "..."}
             forcePopupIcon={false}
             options={getAutocompleteOptions}
             renderInput={(params) => (
